@@ -1,0 +1,1251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>@q3os</title>
+
+<link href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg-black: #070707;
+    --red-1: #ff0026; /* neon red used across the page */
+    --red-2: #b3001a;
+    --accent: #ff3355;
+    --mono: "Segoe UI Mono", "Roboto Mono", "Courier New", monospace;
+    --oldeng: "UnifrakturCook", "UnifrakturMaguntia", "Old English Text MT", "Fraktur", serif;
+    box-sizing: border-box;
+  }
+  *,*::before,*::after{box-sizing:inherit}
+
+  html,body{height:100%;margin:0;background:var(--bg-black);color:#fff;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;overflow:hidden;}
+  .wrap{
+    position:relative;height:100vh;width:100vw;display:flex;align-items:center;justify-content:center;
+    background:
+      radial-gradient(ellipse at 20% 10%, rgba(255,0,51,0.03) 0%, transparent 10%),
+      radial-gradient(ellipse at 80% 90%, rgba(179,0,26,0.02) 0%, transparent 14%),
+      linear-gradient(180deg,#040404 0%, #0b0b0b 100%);
+  }
+
+  /* ========== SOCIAL BAR (kept as subtle container so there aren't duplicate socials) ========== */
+  .social-bar{
+    position:fixed;
+    top:16px;
+    left:50%;
+    transform:translateX(-50%);
+    z-index:140;
+    display:flex;
+    gap:14px;
+    align-items:center;
+    justify-content:center;
+    padding:10px 18px;
+    border-radius:14px;
+    background: linear-gradient(180deg, rgba(255,0,20,0.02), rgba(0,0,0,0.02));
+    backdrop-filter: blur(6px);
+    border:1px solid rgba(255,0,40,0.03);
+  }
+
+  .social{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:6px 8px;
+    border-radius:10px;
+    cursor:pointer;
+    text-decoration:none;
+    color:var(--red-1);
+    transition: transform 140ms ease, background 160ms ease;
+    position:relative;
+    background: transparent;
+  }
+  .social:hover{ transform: translateY(-3px); background: rgba(255,0,40,0.02); }
+
+  .iconWrap {
+    width:40px;
+    height:36px;
+    min-width:40px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:8px;
+    position:relative;
+    background: rgba(255,255,255,0.008);
+  }
+  .icon-main{
+    width:20px;height:20px; display:block; object-fit:contain;
+    filter: saturate(200%) brightness(1.06) contrast(1.02);
+    transition: transform .16s ease;
+  }
+
+  .glitch-layer{ position:absolute; left:0; top:0; right:0; bottom:0; pointer-events:none; display:flex; align-items:center; justify-content:center; opacity:0.26; mix-blend-mode:screen; }
+  .glitch-layer img{ width:20px; height:20px; object-fit:contain; filter: saturate(260%) contrast(1.05); opacity:0.95; }
+  .glitch-a{ transform: translate(-2px, -1px); animation: glitchA 1.2s infinite linear; }
+  .glitch-b{ transform: translate(2px, 1px); animation: glitchB 1.35s infinite linear; }
+  @keyframes glitchA { 0%{transform:translate(-2px,-1px)} 10%{transform:translate(-6px,2px)} 20%{transform:translate(4px,-2px)} 40%{transform:translate(0,0)} 100%{transform:translate(-2px,-1px)} }
+  @keyframes glitchB { 0%{transform:translate(2px,1px)} 15%{transform:translate(7px,-2px)} 30%{transform:translate(-4px,2px)} 60%{transform:translate(0,0)} 100%{transform:translate(2px,1px)} }
+
+  .neon-outline{ position:absolute; inset:0; border-radius:8px; box-shadow:0 0 12px rgba(255,0,40,0.14), inset 0 0 6px rgba(255,40,80,0.03); pointer-events:none; opacity:0.6; mix-blend-mode:screen; }
+
+  .social-username {
+    position:relative;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    font-family:var(--mono);
+    font-size:13px;
+    line-height:1;
+    padding:8px 12px;
+    min-width:56px;
+    max-width:160px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    color: var(--red-1);
+    -webkit-text-stroke: 0.16px rgba(0,0,0,0.35);
+    text-shadow: 0 6px 18px rgba(179,0,26,0.18);
+    background: rgba(0,0,0,0.02);
+    border-radius:6px;
+    z-index:3;
+    box-sizing: border-box;
+  }
+
+  .social-username::before,
+  .social-username::after {
+    content: attr(data-text);
+    position:absolute;
+    left:0; top:0;
+    width:100%; height:100%;
+    pointer-events:none;
+    z-index:1;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:8px 12px; /* match */
+    box-sizing:border-box;
+  }
+  .social-username::before{
+    color: rgba(255,40,60,0.98);
+    transform: translate(-3px, 0);
+    mix-blend-mode:screen;
+    filter: blur(0.9px) saturate(160%);
+    opacity:0.9;
+    animation: usernameGlitch1 1.14s infinite linear;
+  }
+  .social-username::after{
+    color: rgba(255,180,200,0.36);
+    transform: translate(3px, 0);
+    mix-blend-mode:screen;
+    filter: blur(1.4px);
+    opacity:0.6;
+    animation: usernameGlitch2 1.02s infinite linear;
+  }
+  @keyframes usernameGlitch1 { 0%{transform:translate(-2px,0)}10%{transform:translate(-8px,2px)}20%{transform:translate(6px,-2px)}30%{transform:translate(-6px,1px)}40%{transform:translate(0,0)}100%{transform:translate(-2px,0)} }
+  @keyframes usernameGlitch2 { 0%{transform:translate(2px,0)}12%{transform:translate(10px,-2px)}24%{transform:translate(-6px,2px)}36%{transform:translate(4px,-1px)}100%{transform:translate(0,0)} }
+
+  /* ========= END SOCIAL BAR ========= */
+
+  .logo-left, .logo-right {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 220px;
+    height: 220px;
+    z-index: 20;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    pointer-events:none;
+    will-change:transform,filter,box-shadow;
+  }
+  .logo-left { left: 6%; }
+  .logo-right { right: 6%; }
+
+  .logo-left img, .logo-right img {
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    display:block;
+    border-radius:16px;
+    filter: contrast(1.05) saturate(1.12) drop-shadow(0 14px 30px rgba(179,0,26,0.2));
+    transition: filter 160ms linear, transform 120ms linear;
+  }
+
+  .center {
+    z-index: 60;
+    text-align:center;
+    max-width:1280px;
+    padding:20px;
+    backdrop-filter: blur(2px);
+    margin-top:24px;
+    pointer-events: auto;
+  }
+
+  /* TITLE: text-only, glitch via pseudo elements (no blurred oval added) */
+  .title{
+    font-family: var(--oldeng);
+    letter-spacing:1px;
+    font-size: clamp(28px, 4.8vw, 56px);
+    color:var(--accent);
+    margin-bottom:8px;
+    text-shadow:
+      0 8px 26px rgba(179,0,26,0.16),
+      0 2px 6px rgba(0,0,0,0.8);
+    opacity:0.98;
+    transform-origin:center;
+    display:inline-block;
+    background: transparent;
+    border: none;
+    padding: 0;
+    position:relative;
+    z-index:6;
+  }
+  .title::before,
+  .title::after {
+    content: attr(data-text);
+    position:absolute;
+    left:0; top:0;
+    width:100%; height:100%;
+    pointer-events:none;
+    z-index:5;
+    mix-blend-mode:screen;
+  }
+  .title::before { color: rgba(255,40,60,0.95); transform: translate(-4px, 0); filter: blur(0.9px); opacity:0.95; animation: titleGlitchA 1.2s infinite linear; }
+  .title::after  { color: rgba(255,180,200,0.36); transform: translate(4px, 0);  filter: blur(1.6px); opacity:0.6; animation: titleGlitchB 1.05s infinite linear; }
+  @keyframes titleGlitchA { 0%{transform:translate(-2px,0)}10%{transform:translate(-8px,2px)}20%{transform:translate(6px,-2px)}30%{transform:translate(-6px,1px)}40%{transform:translate(2px,-1px)}100%{transform:translate(0,0)} }
+  @keyframes titleGlitchB { 0%{transform:translate(2px,0)}12%{transform:translate(8px,-2px)}24%{transform:translate(-6px,2px)}36%{transform:translate(4px,-1px)}100%{transform:translate(0,0)} }
+
+  /* HIDE the centered title visually since the visible title will now be shown inside the bio card.
+     (element remains in DOM so nothing in your codebase is removed) */
+  .title { display: none !important; }
+
+  /* pulse */
+  @keyframes sinisterPulse {
+    0% { transform: translateY(0) rotate(0deg) skewX(0deg); text-shadow:0 6px 18px rgba(179,0,26,0.12);}
+    12% { transform: translateY(-4px) rotate(-0.6deg) skewX(-0.6deg); text-shadow:0 12px 28px rgba(255,0,51,0.18);}
+    25% { transform: translateY(0) rotate(0.4deg) skewX(0.4deg); text-shadow:0 6px 18px rgba(179,0,26,0.12);}
+    37% { transform: translateY(-2px) rotate(-0.3deg) skewX(-0.3deg); text-shadow:0 10px 26px rgba(179,0,26,0.14);}
+    50% { transform: translateY(0) rotate(0deg) skewX(0deg); text-shadow:0 6px 18px rgba(179,0,26,0.12);}
+    100% { transform: translateY(0) rotate(0deg) skewX(0deg); }
+  }
+  .title { animation: sinisterPulse 4.6s ease-in-out infinite; }
+
+  /* ======= TYPING BOX FIXES ======= */
+  .glitch-typing {
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family: var(--mono);
+    font-size: clamp(18px, 3.6vw, 34px);
+    line-height:1.22;
+    color:var(--red-1);
+    width: 92vw;
+    max-width: 1100px;
+    min-height: 140px;
+    text-align:center;
+    margin: 18px auto 28px;
+    padding: 26px 30px;
+    border-radius: 12px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.007));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.02), 0 16px 80px rgba(0,0,0,0.8);
+    border: 1px solid rgba(255,0,51,0.04);
+    white-space: normal;
+    word-break:break-word;
+    overflow:visible;
+    z-index:61;
+    pointer-events:auto;
+    box-sizing: border-box;
+  }
+
+  .typing-inner {
+    width:100%;
+    max-width:100%;
+    display:block;
+    box-sizing:border-box;
+    overflow:hidden;
+    padding:0;
+  }
+
+  .ghost-layer { display:none !important; }
+
+  #typedText {
+    color: var(--red-1);
+    -webkit-text-stroke: 0.18px rgba(0,0,0,0.35);
+    text-shadow:
+      0 8px 30px rgba(179,0,26,0.28),
+      -2px 0 0 rgba(180,0,30,0.12),
+      2px 0 0 rgba(255,0,80,0.06);
+    display:block;
+    position:relative;
+    z-index:3;
+    transition: text-shadow 180ms linear, transform 120ms linear;
+    will-change:transform, text-shadow;
+    max-width: 100%;
+    box-sizing: border-box;
+    margin: 0 auto;
+    padding: 0 6px;
+    word-break:break-word;
+    line-height:1.22;
+  }
+
+  .glitch-typing #typedText::before,
+  .glitch-typing #typedText::after {
+    content: attr(data-text);
+    position:absolute;
+    left:0;top:0;
+    width:100%;
+    height:100%;
+    overflow:visible;
+    clip-path: inset(0 0 0 0);
+    z-index:2;
+    pointer-events:none;
+  }
+  .glitch-typing #typedText::before{
+    color: rgba(255,40,60,0.95);
+    transform: translate(-4px, 0);
+    mix-blend-mode:screen;
+    filter: blur(0.8px);
+    opacity:0.9;
+    animation: glitchShiftText 1.2s infinite linear;
+  }
+  .glitch-typing #typedText::after{
+    color: rgba(255,180,200,0.35);
+    transform: translate(4px, 0);
+    mix-blend-mode:screen;
+    opacity:0.6;
+    filter: blur(1.6px);
+    animation: glitchShiftTextRev 1.05s infinite linear;
+  }
+  @keyframes glitchShiftText { 0%{transform:translate(-2px,0)} 10%{transform:translate(-8px,2px)} 20%{transform:translate(6px,-2px)} 30%{transform:translate(-6px,1px)} 40%{transform:translate(2px,-1px)} 100%{transform:translate(0,0)} }
+  @keyframes glitchShiftTextRev { 0%{transform:translate(2px,0)} 12%{transform:translate(8px,-2px)} 24%{transform:translate(-6px,2px)} 36%{transform:translate(4px,-1px)} 100%{transform:translate(0,0)} }
+
+  .embers{ position:absolute; inset:0; z-index:15; pointer-events:none; overflow:hidden; }
+  .ember{ position:absolute; width:6px; height:6px; border-radius:50%; background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.92), rgba(255,60,40,0.85)); opacity:0.14; filter:blur(0.6px); transform: translateY(0); animation: emberRise linear infinite; }
+  @keyframes emberRise { 0% { transform: translateY(8vh) scale(0.5); opacity:0.08; } 50% { opacity:0.22; } 100% { transform: translateY(-20vh) scale(1.6); opacity:0; } }
+
+  .scanlinePulse{ position: absolute; inset:0; z-index:45; pointer-events:none; background-image: linear-gradient( rgba(255,0,40,0.02) 1px, transparent 1px ); background-size: 100% 4px; opacity:0.06; }
+  /* Removed the center blur/vignette to eliminate the "random blur circle" the user saw */
+  .vignette{position:absolute;inset:0;pointer-events:none;z-index:20;background:none !important;}
+
+  .controls{ position:fixed;right:18px;bottom:18px;z-index:60;display:flex;gap:12px;align-items:center; }
+  .volumeWrap{ display:flex; gap:8px; align-items:center; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:8px 10px; border-radius:12px; border:1px solid rgba(255,255,255,0.02); }
+  .volumeWrap input[type=range]{ width:140px; height:6px; border-radius:6px; outline:none; background:linear-gradient(90deg, rgba(255,0,51,0.95) 0%, rgba(255,0,51,0.38) 60%, rgba(255,255,255,0.06) 100%); -webkit-appearance:none; }
+  .volumeWrap input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:12px; height:12px; border-radius:10px; background:var(--accent); box-shadow:0 2px 8px rgba(255,50,80,0.24); border:2px solid rgba(0,0,0,0.5); }
+
+  .hint{font-family:var(--mono);font-size:12px;color:rgba(255,255,255,0.32);margin-top:8px;z-index:50; visibility:hidden; height:0; }
+
+  @media (max-width:700px){
+    .logo-left, .logo-right { width:140px; height:140px; }
+    .social-bar { transform: translateX(-50%) scale(0.95); gap:8px;}
+    .social { gap:8px; padding:4px; }
+    .iconWrap { width:34px; height:30px; min-width:34px; }
+    .glitch-layer img, .icon-main { width:18px; height:18px; }
+    .social-username { font-size:11px; padding:6px 8px; max-width:120px; }
+    .title{font-size:24px;}
+    .glitch-typing{font-size:16px;padding:18px;height:auto;min-height:100px;}
+    .controls{right:10px;bottom:10px}
+    .volumeWrap input[type=range]{ width:100px; }
+  }
+
+  /* =========================
+     BIO-LINK CARD ADDITIONS
+     (kept separate so it doesn't interfere
+     with existing styles)
+     ========================= */
+  .bio-card {
+    margin: 12px auto 18px;
+    width: min(640px, 92%);          /* made smaller so title fits */
+    background: linear-gradient(180deg, rgba(7,0,0,0.55), rgba(0,0,0,0.35)); /* darker slightly */
+    border-radius: 12px;
+    padding: 16px;                   /* reduced padding */
+    box-shadow: 0 8px 42px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,0,40,0.06); /* use neon red border */
+    z-index: 62;
+    position: relative;
+    color: var(--red-1);             /* primary biolink color set to neon red */
+    backdrop-filter: blur(4px) saturate(1.2);
+    transition: transform 220ms ease;
+  }
+  .bio-top {
+    display:flex;
+    gap:14px;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    text-align:center;
+    margin-bottom:8px;
+  }
+  .bio-avatar {
+    width:84px;                      /* slightly smaller */
+    height:84px;
+    border-radius:50%;
+    overflow:hidden;
+    border: 2px solid rgba(255,0,40,0.08);
+    box-shadow: 0 8px 30px rgba(255,0,40,0.04), 0 2px 6px rgba(0,0,0,0.6);
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.06));
+    display:inline-block;
+  }
+  .bio-avatar img { width:100%; height:100%; object-fit:cover; display:block; }
+
+  /* BIO NAME: now receives glitch pseudo-elements (title effect) but kept at bio-name size */
+  .bio-name {
+    font-family: var(--oldeng);
+    font-size: 20px;
+    letter-spacing: 0.4px;
+    color: var(--red-1);             /* make name glow red-ish */
+    margin-top:6px;
+    text-shadow: 0 8px 28px rgba(255,0,40,0.06);
+    position: relative;
+    z-index: 6;
+    /* ensure background remains transparent and size unchanged */
+    background: transparent;
+    display: inline-block;
+    padding: 0 6px;
+  }
+  /* glitch pseudo-elements for the bio-name - identical effect to .title but tuned for smaller size */
+  .bio-name::before,
+  .bio-name::after {
+    content: attr(data-text);
+    position:absolute;
+    left:0; top:0;
+    width:100%; height:100%;
+    pointer-events:none;
+    z-index:5;
+    mix-blend-mode:screen;
+    display:inline-block;
+  }
+  .bio-name::before {
+    color: rgba(255,40,60,0.95);
+    transform: translate(-3px, 0);
+    filter: blur(0.8px);
+    opacity:0.95;
+    animation: titleGlitchA 1.14s infinite linear;
+  }
+  .bio-name::after {
+    color: rgba(255,180,200,0.36);
+    transform: translate(3px, 0);
+    filter: blur(1.2px);
+    opacity:0.6;
+    animation: titleGlitchB 1.02s infinite linear;
+  }
+
+  .bio-sub {
+    font-family: var(--mono);
+    font-size:12px;
+    color: rgba(255,255,255,0.58);
+    margin-top:4px;
+  }
+  .bio-links {
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    margin-top:10px;
+    padding-top:6px;
+  }
+  /* each bio-link now gets the red glitchy icon treatment */
+  .bio-link {
+    display:flex;
+    gap:12px;
+    align-items:center;
+    text-decoration:none;
+    padding:10px 12px;               /* slightly smaller */
+    border-radius:10px;
+    background: linear-gradient(180deg, rgba(0,0,0,0.12), rgba(0,0,0,0.06));
+    border: 1px solid rgba(255,0,40,0.04); /* red border to match neon */
+    transition: transform 140ms ease, box-shadow 140ms ease, background 120ms ease;
+    color: #fff;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+  }
+  .bio-link:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 18px 48px rgba(255,0,40,0.06), 0 6px 20px rgba(0,0,0,0.6);
+    background: linear-gradient(180deg, rgba(255,0,40,0.02), rgba(0,0,0,0.06));
+  }
+  .bio-icon {
+    width:44px;
+    height:44px;
+    min-width:44px;
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background: rgba(0,0,0,0.06);
+    border: 1px solid rgba(255,0,40,0.04);
+    position:relative;
+    overflow:visible;
+  }
+  /* inside bio-icon we'll reuse the iconWrap + glitch layers so icons match the top socials */
+  .bio-icon .iconWrap { width:44px; height:44px; min-width:44px; border-radius:8px; display:flex; align-items:center; justify-content:center; background: rgba(255,255,255,0.002); }
+  .bio-icon .glitch-layer img{ width:22px; height:22px; filter: saturate(200%) brightness(1.05) contrast(1.02) drop-shadow(0 0 8px rgba(255,0,40,0.95)); mix-blend-mode:screen; }
+  .bio-icon .icon-main{ width:22px; height:22px; filter: saturate(200%) brightness(1.05) contrast(1.02) drop-shadow(0 0 10px rgba(255,0,40,0.98)); mix-blend-mode:screen; }
+
+  .bio-link-title {
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    justify-content:center;
+    text-align:left;
+  }
+  /* make the title row red & glitchy (to match the red socials) */
+  .bio-link-title .title-row {
+    font-family:var(--mono);
+    font-size:14px;
+    color:var(--red-1);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    position:relative;
+    -webkit-text-stroke: 0.12px rgba(0,0,0,0.36);
+    text-shadow: 0 6px 18px rgba(255,0,40,0.16);
+    z-index:2;
+  }
+  .bio-link-title .title-row::before,
+  .bio-link-title .title-row::after {
+    content: attr(data-text);
+    position:absolute;
+    left:0; top:0;
+    width:100%; height:100%;
+    pointer-events:none;
+    z-index:0;
+    mix-blend-mode:screen;
+  }
+  .bio-link-title .title-row::before {
+    color: rgba(255,40,60,0.98);
+    transform: translate(-3px,0);
+    filter: blur(0.8px);
+    opacity:0.92;
+    animation: titleGlitchA 1.14s infinite linear;
+  }
+  .bio-link-title .title-row::after {
+    color: rgba(255,180,200,0.36);
+    transform: translate(3px,0);
+    filter: blur(1.2px);
+    opacity:0.6;
+    animation: titleGlitchB 1.02s infinite linear;
+  }
+
+  .bio-link-title .sub-row {
+    font-family:var(--mono);
+    font-size:12px;
+    color:rgba(255,255,255,0.36);
+    margin-top:4px;
+  }
+
+  .bio-footer {
+    display:flex;
+    gap:10px;
+    align-items:center;
+    justify-content:space-between;
+    margin-top:12px;
+    padding-top:8px;
+    border-top: 1px dashed rgba(255,0,40,0.03);
+  }
+  .bio-actions {
+    display:flex;
+    gap:8px;
+  }
+  .btn {
+    padding:8px 12px;
+    border-radius:10px;
+    background: rgba(0,0,0,0.12);
+    border:1px solid rgba(255,0,40,0.04);
+    color:#fff;
+    font-family:var(--mono);
+    font-size:13px;
+    cursor:pointer;
+  }
+  .btn:active { transform: translateY(1px); }
+
+  @media (max-width:700px){
+    .bio-card { padding:12px; width: 94%; }
+    .bio-avatar { width:68px;height:68px; }
+    .bio-icon { width:40px;height:40px; min-width:40px; }
+  }
+
+</style>
+</head>
+<body>
+  <div class="wrap">
+
+    <!-- SOCIAL BAR (left empty so we don't show duplicate icons) -->
+    <div class="social-bar" aria-hidden="false" aria-label="Social links">
+      <!-- intentionally empty: primary socials moved into the biolink to avoid duplication -->
+    </div>
+    <!-- END SOCIAL BAR -->
+
+    <div class="logo-left" id="logoLeft">
+      <img id="logoImgLeft" alt="Laughing Coffin Left" src="https://i.imgur.com/CHHBTeP.png" crossorigin="anonymous">
+    </div>
+    <div class="logo-right" id="logoRight">
+      <img id="logoImgRight" alt="Laughing Coffin Right" src="https://i.imgur.com/CHHBTeP.png" crossorigin="anonymous">
+    </div>
+
+    <div class="center">
+      <div class="title" id="mainTitle" data-text="q3os">q3os</div>
+
+      <!-- BIO-LINK CARD (main socials live here; icons use same glitch layers + neon outline as original) -->
+      <div class="bio-card" aria-label="Profile / biolink">
+        <div class="bio-top" role="region" aria-label="profile">
+          <div class="bio-avatar" aria-hidden="false">
+            <!-- using the provided image path from the conversation -->
+            <img src="https://i.imgur.com/kKJERRU.png" alt="Profile avatar">
+          </div>
+          <!-- BIO NAME now contains data-text so pseudo-elements can mirror the glitch title effect -->
+          <div class="bio-name" data-text="q3os">q3os</div>
+          <div class="bio-sub">someone you're mad at LOL</div>
+        </div>
+
+        <div class="bio-links" role="list">
+          <!-- Twitch (using 'quiet' mention in sub-row as requested) -->
+          <a class="bio-link" role="listitem" href="https://www.twitch.tv/q3os target="_blank" rel="noopener noreferrer">
+            <div class="bio-icon" aria-hidden="true">
+              <div class="iconWrap" style="position:relative;">
+                <div class="glitch-layer glitch-a"><img src="https://img.icons8.com/ios-filled/50/ffffff/twitch.png" alt="twitch-glitch-a"/></div>
+                <div class="glitch-layer glitch-b"><img src="https://img.icons8.com/ios-filled/50/ffffff/twitch.png" alt="twitch-glitch-b"/></div>
+                <img class="icon-main" src="https://img.icons8.com/ios-filled/50/ffffff/twitch.png" alt="twitch-main"/>
+                <span class="neon-outline" aria-hidden="true"></span>
+              </div>
+            </div>
+            <div class="bio-link-title">
+              <div class="title-row" data-text="Twitch">Twitch</div>
+              <div class="sub-row">quiet</div>
+            </div>
+          </a>
+
+          <!-- Instagram (LaughingCoffin handle preserved) -->
+          <a class="bio-link" role="listitem" href="https://www.instagram.com/q3os/" target="_blank" rel="noopener noreferrer">
+            <div class="bio-icon" aria-hidden="true">
+              <div class="iconWrap" style="position:relative;">
+                <div class="glitch-layer glitch-a"><img src="https://img.icons8.com/ios-filled/50/ffffff/instagram-new.png" alt="ig-glitch-a"/></div>
+                <div class="glitch-layer glitch-b"><img src="https://img.icons8.com/ios-filled/50/ffffff/instagram-new.png" alt="ig-glitch-b"/></div>
+                <img class="icon-main" src="https://img.icons8.com/ios-filled/50/ffffff/instagram-new.png" alt="ig-main"/>
+                <span class="neon-outline" aria-hidden="true"></span>
+              </div>
+            </div>
+            <div class="bio-link-title">
+              <div class="title-row" data-text="Instagram">Instagram</div>
+              <div class="sub-row">@q3osx</div>
+            </div>
+          </a>
+
+          <!-- TikTok (quiet/laughing coffin account preserved) -->
+          <a class="bio-link" role="listitem" href="https://www.tiktok.com/@q3osx" target="_blank" rel="noopener noreferrer">
+            <div class="bio-icon" aria-hidden="true">
+              <div class="iconWrap" style="position:relative;">
+                <div class="glitch-layer glitch-a"><img src="https://img.icons8.com/ios-filled/50/ffffff/tiktok.png" alt="tt-glitch-a"/></div>
+                <div class="glitch-layer glitch-b"><img src="https://img.icons8.com/ios-filled/50/ffffff/tiktok.png" alt="tt-glitch-b"/></div>
+                <img class="icon-main" src="https://img.icons8.com/ios-filled/50/ffffff/tiktok.png" alt="tt-main"/>
+                <span class="neon-outline" aria-hidden="true"></span>
+              </div>
+            </div>
+            <div class="bio-link-title">
+              <div class="title-row" data-text="TikTok">TikTok</div>
+              <div class="sub-row">@q3osx</div>
+            </div>
+          </a>
+
+          <!-- YouTube (Laughing Coffin channel preserved) -->
+          <a class="bio-link" role="listitem" href="https://www.youtube.com/@q3osx" target="_blank" rel="noopener noreferrer">
+            <div class="bio-icon" aria-hidden="true">
+              <div class="iconWrap" style="position:relative;">
+                <div class="glitch-layer glitch-a"><img src="https://img.icons8.com/ios-filled/50/ffffff/youtube-play.png" alt="yt-glitch-a"/></div>
+                <div class="glitch-layer glitch-b"><img src="https://img.icons8.com/ios-filled/50/ffffff/youtube-play.png" alt="yt-glitch-b"/></div>
+                <img class="icon-main" src="https://img.icons8.com/ios-filled/50/ffffff/youtube-play.png" alt="yt-main"/>
+                <span class="neon-outline" aria-hidden="true"></span>
+              </div>
+            </div>
+            <div class="bio-link-title">
+              <div class="title-row" data-text="YouTube">YouTube</div>
+              <div class="sub-row">@q3osx</div>
+            </div>
+          </a>
+
+          <!-- Twitter -->
+          <a class="bio-link" role="listitem" href="https://twitter.com/q3osx" target="_blank" rel="noopener noreferrer">
+            <div class="bio-icon" aria-hidden="true">
+              <div class="iconWrap" style="position:relative;">
+                <div class="glitch-layer glitch-a"><img src="https://img.icons8.com/ios-filled/50/ffffff/twitter.png" alt="tw-glitch-a"/></div>
+                <div class="glitch-layer glitch-b"><img src="https://img.icons8.com/ios-filled/50/ffffff/twitter.png" alt="tw-glitch-b"/></div>
+                <img class="icon-main" src="https://img.icons8.com/ios-filled/50/ffffff/twitter.png" alt="tw-main"/>
+                <span class="neon-outline" aria-hidden="true"></span>
+              </div>
+            </div>
+            <div class="bio-link-title">
+              <div class="title-row" data-text="Twitter">Twitter</div>
+              <div class="sub-row">@q3osx</div>
+            </div>
+          </a>
+
+          <!-- Discord -->
+          <a class="bio-link" role="listitem" href="https://discord.gg/laughingcoffin" target="_blank" rel="noopener noreferrer">
+            <div class="bio-icon" aria-hidden="true">
+              <div class="iconWrap" style="position:relative;">
+                <div class="glitch-layer glitch-a"><img src="https://img.icons8.com/ios-filled/50/ffffff/discord-logo.png" alt="dc-glitch-a"/></div>
+                <div class="glitch-layer glitch-b"><img src="https://img.icons8.com/ios-filled/50/ffffff/discord-logo.png" alt="dc-glitch-b"/></div>
+                <img class="icon-main" src="https://img.icons8.com/ios-filled/50/ffffff/discord-logo.png" alt="dc-main"/>
+                <span class="neon-outline" aria-hidden="true"></span>
+              </div>
+            </div>
+            <div class="bio-link-title">
+              <div class="title-row" data-text="Discord">Discord</div>
+              <div class="sub-row">Join the server</div>
+            </div>
+          </a>
+        </div>
+
+        <div class="bio-footer" role="toolbar" aria-label="biolink actions">
+          <div style="font-family:var(--mono); font-size:12px; color:rgba(255,255,255,0.36);">Cooked by <a href="https://indeed.com" style="color:#ff6b7a;text-decoration:none">ballwalll</a></div>
+          <div class="bio-actions">
+          </div>
+        </div>
+      </div>
+      <!-- END BIO-LINK CARD -->
+
+      <div class="glitch-typing" id="typingWrap" aria-live="polite" role="status">
+        <div class="typing-inner">
+          <div id="ghostA" class="ghost-layer" aria-hidden="true"></div>
+          <div id="ghostB" class="ghost-layer" aria-hidden="true"></div>
+
+          <div class="visible-layer" aria-hidden="false" style="position:relative;z-index:48;">
+            <span id="typedText" data-text=""></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hint" aria-hidden="true"></div>
+    </div>
+
+    <div class="embers" id="embers"></div>
+    <div class="scanlinePulse"></div>
+    <div class="vignette"></div>
+
+    <audio id="audio" crossorigin="anonymous" preload="auto" playsinline></audio>
+
+    <div class="controls" aria-hidden="false">
+      <div class="volumeWrap" title="Volume">
+        <input id="volumeSlider" aria-label="Volume" type="range" min="0" max="1" step="0.01" value="0.32">
+        <div id="volLabel" style="font-family:var(--mono);font-size:12px;color:rgba(255,255,255,0.7);min-width:36px;text-align:right;">32%</div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* Audio + logic kept intact, with changes to:
+   - support multiple audio URLs (playlist) and loop the entire playlist
+   - ensure single audio still loops
+   - preserved all other behaviors (autoplay attempt, unlock on gesture, audio visualizer)
+*/
+
+/* PROVIDE multiple audio entries here — you can add as many as you want.
+   Format: { url: 'https://....mp3', type: 'audio/mpeg' } (type optional) */
+const CANDIDATES = [
+  { url: 'https://r2.guns.lol/3473aa0f-0dee-4021-b862-046fd8b886ff.mp3', type: 'audio/mpeg' },
+  // add extra tracks below as needed:
+  // { url: 'https://example.com/another-track.mp3', type: 'audio/mpeg' },
+  // { url: 'https://example.com/third-track.ogg', type: 'audio/ogg' },
+];
+
+const audio = document.getElementById('audio');
+const volumeSlider = document.getElementById('volumeSlider');
+const volLabel = document.getElementById('volLabel');
+
+const logoLeft = document.getElementById('logoLeft');
+const logoRight = document.getElementById('logoRight');
+const logoImgLeft = document.getElementById('logoImgLeft');
+const logoImgRight = document.getElementById('logoImgRight');
+
+const typedSpan = document.getElementById('typedText');
+const ghostA = document.getElementById('ghostA');
+const ghostB = document.getElementById('ghostB');
+
+const embersContainer = document.getElementById('embers');
+
+let audioCtx, analyser, sourceNode, dataArray, bufferLength;
+
+function showToast(msg, t=2200){
+  let el = document.getElementById('lf-toast');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'lf-toast';
+    el.style.position='fixed';
+    el.style.bottom='32px';
+    el.style.left='50%';
+    el.style.transform='translateX(-50%)';
+    el.style.background='rgba(0,0,0,0.7)';
+    el.style.border='1px solid rgba(255,0,60,0.06)';
+    el.style.color='var(--accent)';
+    el.style.padding='8px 12px';
+    el.style.borderRadius='8px';
+    el.style.zIndex=9999;
+    el.style.fontFamily='monospace';
+    el.style.transition='opacity .4s';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.style.opacity = '1';
+  setTimeout(()=> el.style.opacity = '0', t);
+}
+
+function mimeSupported(mime){
+  try { const r = audio.canPlayType(mime); return r === 'probably' || r === 'maybe'; } catch(e){ return false; }
+}
+async function headOk(url){
+  try { const res = await fetch(url, { method: 'HEAD', cache: 'no-cache' }); return res && res.ok; } catch (e){ return false; }
+}
+async function findAndLoadSources(){
+  const found = [];
+  for(const c of CANDIDATES){
+    if(!c || !c.url) continue;
+    if(c.type && !mimeSupported(c.type)) continue;
+    const ok = await headOk(c.url);
+    if(ok) found.push(c.url);
+  }
+  return found;
+}
+
+function setAudioSrc(url, loopSingle=false){
+  try {
+    audio.pause();
+    audio.src = url;
+    audio.load();
+    // if loopSingle is true, audio element will loop that single track.
+    // if false, we rely on 'ended' to advance playlist.
+    audio.loop = !!loopSingle;
+  } catch(e){
+    console.warn('setAudioSrc/load error', e);
+  }
+}
+
+let playlist = [], currentIndex = 0, endedListener = null;
+function advanceIndex(){ if(playlist.length===0) return; currentIndex = (currentIndex+1) % playlist.length; }
+function preparePlaylistEndedHandler(){
+  if(endedListener){ audio.removeEventListener('ended', endedListener); endedListener = null; }
+  // only attach handler when we have >1 tracks
+  endedListener = async () => {
+    // advance to next (circular)
+    advanceIndex();
+    const next = playlist[currentIndex];
+    try {
+      // when switching tracks, ensure audio.loop = false (we want ended events)
+      setAudioSrc(next, playlist.length === 1);
+      await audio.play();
+    } catch(err){
+      showToast('Playback error during playlist — check console', 3000);
+      console.warn('playlist advance error', err);
+    }
+  };
+  audio.addEventListener('ended', endedListener);
+}
+
+async function playFromUserGesture(){
+  try {
+    const chosen = await findAndLoadSources();
+    if(!chosen || chosen.length === 0){
+      showToast('No supported audio sources found.');
+      return false;
+    }
+    playlist = chosen.slice(); // copy
+    currentIndex = 0;
+    // if only one track, let the audio element loop it.
+    setAudioSrc(playlist[0], playlist.length === 1);
+    if(playlist.length > 1) preparePlaylistEndedHandler();
+    audio.muted = false;
+    try {
+      await audio.play();
+      initAudioContext();
+      return true;
+    } catch(err){
+      console.warn('audio.play failed in playFromUserGesture', err);
+      showToast('Playback failed — see console');
+      return false;
+    }
+  } catch(e){
+    console.error('playFromUserGesture unexpected error', e);
+    showToast('Playback error — see console');
+    return false;
+  }
+}
+
+let audioUnlocked = false;
+async function unlockAudioOnGesture(){
+  if(audioUnlocked) return;
+  try{
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if(!AC){ audioUnlocked = true; return; }
+    const ctx = new AC();
+    if(ctx.state === 'suspended') await ctx.resume();
+    const b = ctx.createBuffer(1,1,22050);
+    const src = ctx.createBufferSource();
+    src.buffer = b;
+    src.connect(ctx.destination);
+    src.start(0);
+    audioUnlocked = true;
+  } catch(e){
+    audioUnlocked = true;
+    console.warn('unlockAudioOnGesture failed:', e);
+  }
+}
+document.body.addEventListener('pointerdown', unlockAudioOnGesture, {once:true, passive:true});
+document.body.addEventListener('click', async function onBodyClick(){
+  if(audio.paused){
+    try{ await playFromUserGesture(); } catch(e){ console.warn('body click play failed', e); }
+  }
+}, {passive:true});
+
+async function tryAutoplayOnLoad(){
+  try {
+    const chosen = [];
+    // try each candidate quickly, but allow multiple
+    for(const c of CANDIDATES){
+      if(c.type && !mimeSupported(c.type)) continue;
+      const controller = new AbortController();
+      const id = setTimeout(()=> controller.abort(), 1200);
+      try {
+        const res = await fetch(c.url, { method:'HEAD', cache:'no-cache', signal: controller.signal });
+        if(res && res.ok) chosen.push(c.url);
+      } catch(e){}
+      clearTimeout(id);
+    }
+    if(chosen.length){
+      // set up full playlist so it will play through all found tracks and loop
+      playlist = chosen.slice();
+      currentIndex = 0;
+      // single-track -> audio.loop true; multi-track -> handle with ended listener
+      setAudioSrc(playlist[0], playlist.length === 1);
+      if(playlist.length > 1) preparePlaylistEndedHandler();
+      const p = audio.play();
+      if(p !== undefined){
+        p.then(()=> { initAudioContext(); }).catch((err)=> { console.warn('Autoplay blocked:', err); });
+      }
+    }
+  } catch(e){
+    console.warn('tryAutoplayOnLoad error', e);
+  }
+}
+
+function setVolume(v){
+  audio.volume = v;
+  volLabel.textContent = Math.round(v*100) + '%';
+  audio.muted = false;
+}
+setVolume(parseFloat(volumeSlider.value || 0.32));
+volumeSlider.addEventListener('input', e => setVolume(parseFloat(e.target.value)));
+
+function initAudioContext(){
+  if(audioCtx) return;
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 2048;
+    bufferLength = analyser.frequencyBinCount;
+    dataArray = new Uint8Array(bufferLength);
+    sourceNode = audioCtx.createMediaElementSource(audio);
+    sourceNode.connect(analyser);
+    analyser.connect(audioCtx.destination);
+    requestAnimationFrame(animateImages);
+  } catch(e){
+    console.warn('initAudioContext failed', e);
+    requestAnimationFrame(animateImages);
+  }
+}
+audio.addEventListener('play', () => {
+  if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{});
+  else initAudioContext();
+});
+
+function applyImageFallback(targetEl) {
+  const svg = `
+  <svg xmlns='http://www.w3.org/2000/svg' width='512' height='512' viewBox='0 0 512 512'>
+    <rect width='100%' height='100%' fill='#070707'/>
+    <g transform='translate(256,256)'>
+      <text x='0' y='-12' font-family='UnifrakturCook, serif' font-size='34' fill='#ff0026' text-anchor='middle' dominant-baseline='middle'>LC</text>
+    </g>
+  </svg>`;
+  const dataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  targetEl.style.backgroundImage = `url("${dataUrl}")`;
+  targetEl.style.backgroundSize = 'contain';
+  targetEl.style.backgroundPosition = 'center';
+  targetEl.style.backgroundRepeat = 'no-repeat';
+}
+function ensureImage(imgEl, containerEl) {
+  if (imgEl.complete && imgEl.naturalWidth && imgEl.naturalWidth > 1) {
+    imgEl.style.display = '';
+    return;
+  }
+  imgEl.addEventListener('load', () => {
+    imgEl.style.display = '';
+    containerEl.style.backgroundImage = '';
+  });
+  imgEl.addEventListener('error', () => {
+    try {
+      const cacheBust = '?cb=' + Date.now();
+      containerEl.style.backgroundImage = `url("${imgEl.src + cacheBust}")`;
+      containerEl.style.backgroundSize = 'contain';
+      containerEl.style.backgroundPosition = 'center';
+      containerEl.style.backgroundRepeat = 'no-repeat';
+      imgEl.style.display = 'none';
+      const t = new Image();
+      t.onload = function(){ /* ok */ };
+      t.onerror = function(){ applyImageFallback(containerEl); };
+      t.src = imgEl.src + cacheBust;
+    } catch(e) {
+      applyImageFallback(containerEl);
+      imgEl.style.display = 'none';
+    }
+  });
+  imgEl.src = imgEl.src;
+  setTimeout(() => {
+    if (!(imgEl.complete && imgEl.naturalWidth && imgEl.naturalWidth > 1) && !containerEl.style.backgroundImage) {
+      containerEl.style.backgroundImage = `url("${imgEl.src + '?cb=' + Date.now()}")`;
+      containerEl.style.backgroundSize = 'contain';
+      containerEl.style.backgroundPosition = 'center';
+      containerEl.style.backgroundRepeat = 'no-repeat';
+      imgEl.style.display = 'none';
+    }
+  }, 1200);
+}
+ensureImage(logoImgLeft, logoLeft);
+ensureImage(logoImgRight, logoRight);
+
+function animateImages(){
+  if (!analyser) {
+    const t = Date.now() / 1400;
+    const idleScale = 1 + Math.sin(t) * 0.03;
+    logoLeft.style.transform = `translateY(${ -8 + Math.sin(t)*3 }px) scale(${idleScale})`;
+    logoRight.style.transform = `translateY(${ 8 + Math.cos(t)*3 }px) scale(${idleScale})`;
+    requestAnimationFrame(animateImages);
+    return;
+  }
+
+  analyser.getByteFrequencyData(dataArray);
+  let sum = 0, count = 0;
+  const maxIndex = Math.max(1, Math.floor(dataArray.length * 0.35));
+  for (let i=0;i<maxIndex;i++){ sum += dataArray[i]; count++; }
+  const avgRaw = (count>0) ? sum / count : 0;
+  const avg = Math.min(1, avgRaw / 160);
+
+  const scale = 1 + avg * 0.5 + 0.02 * Math.sin(Date.now()/220);
+  const rot = (avg - 0.18) * 0.22;
+  const offset = Math.sin(Date.now()/120 + avg*10) * (10 * avg);
+  const vertical = Math.cos(Date.now()/140) * (12 * avg);
+
+  logoLeft.style.transform = `translate(${ -offset }px, ${ -vertical }px) rotate(${ -rot }rad) scale(${ scale })`;
+  logoRight.style.transform = `translate(${ offset }px, ${ vertical }px) rotate(${ rot }rad) scale(${ scale })`;
+
+  const f = `contrast(${1 + avg*0.22}) saturate(${1 + avg*0.08}) drop-shadow(0 ${12+avg*18}px ${26+avg*36}px rgba(179,0,26,${0.16 + avg*0.24}))`;
+  logoImgLeft.style.filter = f;
+  logoImgRight.style.filter = f;
+
+  requestAnimationFrame(animateImages);
+}
+
+/* Typing loop */
+function setTypedText(text) {
+  typedSpan.textContent = text;
+  typedSpan.setAttribute('data-text', text);
+  ghostA.textContent = text;
+  ghostB.textContent = text;
+}
+const MESSAGE = "Stop stalking me nigga";
+let typingSpeed = 28;
+let deletingSpeed = 14;
+let pauseAfter = 2000;
+let pauseBefore = 450;
+
+async function typingLoop() {
+  while (true) {
+    let out = '';
+    for (let i=0;i<MESSAGE.length;i++){
+      out += MESSAGE[i];
+      setTypedText(out);
+      typedSpan.style.transform = `translateY(${ (Math.random()-0.5) * 0.45 }px)`;
+      await sleep(typingSpeed + Math.random()*18);
+    }
+    setTypedText(MESSAGE);
+    for (let f=0; f<4; f++){
+      typedSpan.style.textShadow = `0 8px 28px rgba(255,0,60,${0.14 + Math.random()*0.18})`;
+      await sleep(90 + Math.random()*120);
+      typedSpan.style.textShadow = `0 6px 20px rgba(179,0,26,0.2)`;
+    }
+    await sleep(pauseAfter);
+    for (let i=MESSAGE.length;i>=0;i--){
+      const s = MESSAGE.slice(0,i);
+      setTypedText(s);
+      await sleep(deletingSpeed + Math.random()*12);
+    }
+    await sleep(pauseBefore);
+  }
+}
+function sleep(ms){ return new Promise(res => setTimeout(res, ms)); }
+typingLoop().catch(e => console.warn(e));
+
+/* Embers */
+function makeEmbers(count = 18) {
+  for (let i=0;i<count;i++){
+    const el = document.createElement('div');
+    el.className = 'ember';
+    const left = Math.random() * 100;
+    const size = 3 + Math.random()*8;
+    el.style.left = left + '%';
+    el.style.bottom = (Math.random() * 12) + 'vh';
+    el.style.width = size + 'px';
+    el.style.height = size + 'px';
+    el.style.opacity = (0.06 + Math.random()*0.22).toFixed(2);
+    el.style.animationDuration = (4 + Math.random()*8) + 's';
+    el.style.animationDelay = (Math.random()*2) + 's';
+    embersContainer.appendChild(el);
+  }
+}
+makeEmbers(20);
+
+/* Start attempts on load */
+window.addEventListener('load', () => {
+  tryAutoplayOnLoad();
+  ensureImage(logoImgLeft, logoLeft);
+  ensureImage(logoImgRight, logoRight);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) tryAutoplayOnLoad();
+  });
+
+  // wire up biolink actions (copy & toggle rain)
+  const copyBtn = document.getElementById('copyLinkBtn');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(location.href);
+        showToast('Link copied to clipboard', 1600);
+      } catch (e) {
+        showToast('Copy failed — use manual copy', 1800);
+      }
+    }, {passive:true});
+  }
+  const toggleRainBtn = document.getElementById('toggleRainBtn');
+  if (toggleRainBtn) {
+    toggleRainBtn.addEventListener('click', () => {
+      document.body.classList.toggle('matrix-rain');
+      showToast('Toggled rain (visual)', 1100);
+    }, {passive:true});
+  }
+
+});
+/* expose helpers */
+window._lc_playFromUserGesture = playFromUserGesture;
+window._lc_findAndLoad = findAndLoadSources;
+window._lc_audio = audio;
+
+/* Anti-inspect (only when page visible & focused) */
+(function setupAntiInspect(){
+  const DISCORD_URL = 'https://discord.gg/laughingcoffin';
+  const MAX_TRIES = 3;
+  const WINDOW_THRESHOLD = 160;
+  const TIME_WINDOW_MS = 20_000;
+  const LS_KEY = '__lc_devtries_v2';
+
+  function readTries(){
+    try{
+      const raw = localStorage.getItem(LS_KEY);
+      if(!raw) return [];
+      const arr = JSON.parse(raw);
+      if(!Array.isArray(arr)) return [];
+      const now = Date.now();
+      return arr.filter(t => (now - t) <= TIME_WINDOW_MS);
+    }catch(e){ return []; }
+  }
+  function addTry(){
+    try{
+      const arr = readTries();
+      arr.push(Date.now());
+      localStorage.setItem(LS_KEY, JSON.stringify(arr));
+      return arr.length;
+    }catch(e){ return 1; }
+  }
+
+  let devOverlay = null;
+  function pageVisibleAndFocused(){
+    return document.visibilityState === 'visible' && document.hasFocus();
+  }
+  function showDevOverlayAndAct(){
+    if (!pageVisibleAndFocused()) return;
+    try{
+      if(devOverlay) return;
+      devOverlay = document.createElement('div');
+      devOverlay.id = 'devOverlay';
+      devOverlay.style.position = 'fixed';
+      devOverlay.style.inset = '0';
+      devOverlay.style.zIndex = '99999';
+      devOverlay.style.display = 'flex';
+      devOverlay.style.alignItems = 'center';
+      devOverlay.style.justifyContent = 'center';
+      devOverlay.style.background = 'rgba(0,0,0,0.88)';
+      devOverlay.style.color = 'var(--red-1)';
+      devOverlay.style.fontFamily = 'UnifrakturCook, var(--mono)';
+      devOverlay.style.fontSize = '24px';
+      devOverlay.style.textAlign = 'center';
+      devOverlay.innerHTML = `<div>laughing coffin is watching<small style="display:block;font-family:var(--mono);font-size:12px;margin-top:12px;color:rgba(255,255,255,0.6)">developer tools detected — refreshing</small></div>`;
+      document.body.appendChild(devOverlay);
+      const tries = addTry();
+      setTimeout(() => {
+        try {
+          if (tries >= MAX_TRIES) {
+            window.open(DISCORD_URL, '_blank');
+          }
+        } finally {
+          try { location.reload(); } catch(e){ location.href = location.href; }
+        }
+      }, 1100);
+    } catch(e){
+      try{ location.reload(); } catch(e){}
+    }
+  }
+
+  window.addEventListener('keydown', function(e){
+    if (!pageVisibleAndFocused()) return;
+    if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || (e.metaKey && e.altKey && e.key === 'I')) {
+      showDevOverlayAndAct();
+    }
+  }, {passive:true});
+
+  let lastIsOpen = false;
+  setInterval(function(){
+    if (!pageVisibleAndFocused()) { lastIsOpen = false; return; }
+    const threshold = WINDOW_THRESHOLD;
+    const widthDiff = Math.abs(window.outerWidth - window.innerWidth);
+    const heightDiff = Math.abs(window.outerHeight - window.innerHeight);
+    const isOpen = (widthDiff > threshold) || (heightDiff > threshold);
+    if (isOpen && !lastIsOpen) {
+      showDevOverlayAndAct();
+    }
+    lastIsOpen = isOpen;
+  }, 900);
+
+  function detectByTime() {
+    if (!pageVisibleAndFocused()) return;
+    const start = performance.now();
+    try { debugger; } catch(e) {}
+    const delta = performance.now() - start;
+    if (delta > 120) {
+      showDevOverlayAndAct();
+    }
+  }
+  try {
+    setInterval(function(){
+      try { detectByTime(); } catch(e) { }
+    }, 4000);
+  } catch(e){ }
+
+  setInterval(function(){
+    if (!pageVisibleAndFocused()) return;
+    const start = performance.now();
+    const f = function(){};
+    f.toString();
+    const delta = performance.now() - start;
+    if (delta > 80) {
+      showDevOverlayAndAct();
+    }
+  }, 3000);
+
+})();
+</script>
+</body>
+</html>
